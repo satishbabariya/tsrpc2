@@ -8,7 +8,7 @@
   },
   "homepage": "https://github.com/tsprc2/tsprc2",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "repository": "https://github.com/tsprc2/tsprc2",
   "files": [
     "/bin",
@@ -41,7 +41,7 @@
     "reactjs",
     "redux"
   ],
-  "types": "dist/index.d.ts",
+  "types": "lib/index.d.ts",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   }
