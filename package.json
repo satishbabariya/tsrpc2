@@ -1,0 +1,48 @@
+{
+  "name": "tsprc2",
+  "version": "0.0.0-dev.1",
+  "description": "lightweight RPC framework for server and client",
+  "author": "Satish Babariya @satishbabariya",
+  "bin": {
+    "tsprc2": "./bin/run.js"
+  },
+  "homepage": "https://github.com/tsprc2/tsprc2",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "repository": "https://github.com/tsprc2/tsprc2",
+  "files": [
+    "/bin",
+    "/lib"
+  ],
+  "dependencies": {
+    "commander": "^9.1.0",
+    "ts-morph": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.9.4",
+    "ts-node": "^10.2.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && ./bin/run.js"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "bugs": "https://github.com/tsprc2/tsprc2/issues",
+  "keywords": [
+    "rpc",
+    "lightweight",
+    "nodejs",
+    "server",
+    "client",
+    "reactjs",
+    "redux"
+  ],
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}
