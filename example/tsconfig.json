@@ -10,13 +10,7 @@
     "esModuleInterop": true,
     "outDir": "lib",
     "rootDir": "src",
-    "lib": [
-      "esnext",
-      "DOM",
-
-    ],
+    "lib": ["esnext", "DOM"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

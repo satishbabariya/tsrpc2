@@ -11,11 +11,7 @@
     "declaration": true,
     "outDir": "lib",
     "rootDir": "src",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }
