@@ -11,7 +11,9 @@
     "outDir": "lib",
     "rootDir": "src",
     "lib": [
-      "esnext"
+      "esnext",
+      "DOM",
+
     ],
   },
   "include": [
