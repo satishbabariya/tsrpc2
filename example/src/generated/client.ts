@@ -5,9 +5,11 @@ export interface IEchoService {
 
 export class EchoServiceClient implements IEchoService {
   baseUrl: string;
+  headers: { [key: string]: string };
 
-  constructor(baseUrl: string = "/") {
+  constructor(baseUrl: string = "/", headers: { [key: string]: string } = {}) {
     this.baseUrl = baseUrl;
+    this.headers = headers;
   }
 
   async echo(request: EchoRequest): Promise<EchoResponse> {
@@ -15,6 +17,7 @@ export class EchoServiceClient implements IEchoService {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...this.headers,
       },
       body: JSON.stringify({
         request,
@@ -28,6 +31,7 @@ export class EchoServiceClient implements IEchoService {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...this.headers,
       },
     });
     return response.json();
@@ -41,9 +45,11 @@ export interface IEchoService2 {
 
 export class EchoService2Client implements IEchoService2 {
   baseUrl: string;
+  headers: { [key: string]: string };
 
-  constructor(baseUrl: string = "/") {
+  constructor(baseUrl: string = "/", headers: { [key: string]: string } = {}) {
     this.baseUrl = baseUrl;
+    this.headers = headers;
   }
 
   async echo(request: EchoRequest): Promise<EchoResponse> {
@@ -51,6 +57,7 @@ export class EchoService2Client implements IEchoService2 {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...this.headers,
       },
       body: JSON.stringify({
         request,
@@ -64,6 +71,7 @@ export class EchoService2Client implements IEchoService2 {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...this.headers,
       },
     });
     return response.json();

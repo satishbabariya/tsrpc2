@@ -93,6 +93,11 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
           type: "string",
         });
 
+        clientImpl.addProperty({
+          name: "headers",
+          type: "{ [key: string]: string }",
+        });
+
         clientImpl.addConstructor({
           parameters: [
             {
@@ -100,8 +105,13 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
               type: "string",
               initializer: `"/"`,
             },
+            {
+              name: "headers",
+              type: "{ [key: string]: string }",
+              initializer: "{}",
+            },
           ],
-          statements: [`this.baseUrl = baseUrl;`],
+          statements: [`this.baseUrl = baseUrl;`, `this.headers = headers;`],
         });
 
         unimplementedMethods.forEach((method) => {
@@ -126,6 +136,7 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
+                    ...this.headers,
                   },
                   body: JSON.stringify({
                     ${method.getParameters().map((param) => param.getName())}
@@ -139,6 +150,7 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json",
+                    ...this.headers,
                   },
               });
               return response.json();`
