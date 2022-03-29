@@ -1,4 +1,4 @@
-import { Service } from "tsprc2";
+import { Service } from "tsrpc2";
 
 interface EchoRequest {
   message: string;

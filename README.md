@@ -1,4 +1,4 @@
-# tsprc2
+# tsrpc2
 
 A light-weight RPC library for Node.js and the browser.
 

@@ -331,6 +331,8 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
   }
 }
 
+export interface Service {}
+
 const pkg = require("../package.json");
 
 let program: commander.Command;

@@ -1,15 +1,15 @@
 {
-  "name": "tsprc2",
+  "name": "tsrpc2",
   "version": "0.0.0-dev.1",
   "description": "lightweight RPC framework for server and client",
   "author": "Satish Babariya @satishbabariya",
   "bin": {
-    "tsprc2": "./bin/run.js"
+    "tsrpc2": "./bin/run.js"
   },
-  "homepage": "https://github.com/tsprc2/tsprc2",
+  "homepage": "https://github.com/tsrpc2/tsrpc2",
   "license": "MIT",
   "main": "lib/index.js",
-  "repository": "https://github.com/tsprc2/tsprc2",
+  "repository": "https://github.com/tsrpc2/tsrpc2",
   "files": [
     "/bin",
     "/lib"
@@ -33,7 +33,7 @@
   "engines": {
     "node": ">=12.0.0"
   },
-  "bugs": "https://github.com/tsprc2/tsprc2/issues",
+  "bugs": "https://github.com/tsrpc2/tsrpc2/issues",
   "keywords": [
     "rpc",
     "lightweight",

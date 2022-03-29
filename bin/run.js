@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-process.title = "tsprc2";
+process.title = "tsrpc2";
 require("../lib");
