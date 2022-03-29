@@ -1,6 +1,6 @@
 {
   "name": "tsrpc2",
-  "version": "0.0.0-dev.2",
+  "version": "0.0.0-dev.3",
   "description": "lightweight RPC framework for server and client",
   "author": "Satish Babariya @satishbabariya",
   "bin": {
