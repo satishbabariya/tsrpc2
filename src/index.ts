@@ -27,9 +27,9 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
     type Request = IncomingMessage & { rawBody: string };
 
     type Interceptor = (
-      request: Request,
+      request: IncomingMessage,
       response: ServerResponse,
-      next: (request: Request, response: ServerResponse) => void
+      next: (request: IncomingMessage, response: ServerResponse) => void
     ) => void;
     `);
 
