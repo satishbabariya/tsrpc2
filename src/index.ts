@@ -2,24 +2,130 @@ import commander from "commander";
 import { InterfaceDeclaration, Project } from "ts-morph";
 import { format } from "prettier";
 
-// Service interface
-export interface Service {}
-
 function generate(protoPath: any, server: any, outputPath: any, client: any) {
   let project = new Project();
   project.addSourceFileAtPath(protoPath);
 
-  let generatedFile = project.createSourceFile(
-    `${outputPath}/server.d.ts`,
-    "",
-    { overwrite: true }
-  );
+  let serverFile = project.createSourceFile(`${outputPath}/server.ts`, "", {
+    overwrite: true,
+  });
 
   let clientFile = project.createSourceFile(`${outputPath}/client.ts`, "", {
     overwrite: true,
   });
 
   let interfacesToExport: InterfaceDeclaration[] = [];
+
+  // serverFile.addImportDeclaration({
+  //   moduleSpecifier: "http",
+  //   namedImports: ["IncomingMessage", "ServerResponse"],
+  // });
+
+  serverFile.addStatements(`
+    import { IncomingMessage, ServerResponse } from "http";
+
+    type Request = IncomingMessage & { rawBody: string };
+
+    type Interceptor = (
+      request: Request,
+      response: ServerResponse,
+      next: (request: Request, response: ServerResponse) => void
+    ) => void;
+    `);
+
+  // http and routing
+  let trpcServerClassDecl = serverFile.addClass({
+    name: "RPCServer",
+    isExported: true,
+  });
+
+  trpcServerClassDecl.addProperty({
+    name: "routes",
+    type: `{
+      [key: string]: {
+        action: Function;
+        interceptors: Interceptor[];
+        method: string;
+        params: string[];
+      };
+    }`,
+    initializer: "{}",
+  });
+
+  trpcServerClassDecl.addMethod({
+    name: "parseBody",
+    returnType: "Promise<Request>",
+    parameters: [
+      {
+        name: "req",
+        type: "IncomingMessage",
+      },
+    ],
+    statements: [
+      `return new Promise<Request>((resolve, reject) => {
+        (req as IncomingMessage & { rawBody: string }).rawBody = "";
+        req.setEncoding("utf8");
+        req.on("data", (chunk: string) => {
+          (req as IncomingMessage & { rawBody: string }).rawBody += chunk;
+        });
+        req.on("end", () => {
+          resolve(req as Request);
+        });
+        req.on("error", (error: any) => {
+          reject(error);
+        });
+      });`,
+    ],
+  });
+
+  trpcServerClassDecl.addMethod({
+    name: "handleRequest",
+    isAsync: true,
+    parameters: [
+      {
+        name: "request",
+        type: "IncomingMessage",
+      },
+      {
+        name: "response",
+        type: "ServerResponse",
+      },
+    ],
+    statements: [
+      `
+      try {
+        let url = request.url;
+        if (url) {
+          let route = this.routes[url];
+          if (route && route.method === request.method) {
+            if (request.method === "GET") {
+              let res = await route.action();
+              response.writeHead(200, { "Content-Type": "application/json" });
+              response.end(JSON.stringify(res));
+              return;
+            } else if (request.method === "POST") {
+              const req = await this.parseBody(request);
+              let body = JSON.parse(req.rawBody);
+              let params = route.params.map((p) => body[p]);
+              if (params.length !== route.params.length) {
+                throw new Error('Invalid params');
+              }
+              let res = await route.action(...params);
+              response.writeHead(200, { "Content-Type": "application/json" });
+              response.end(JSON.stringify(res));
+              return;
+            }
+          }
+        }
+        response.writeHead(404, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ error: "not found" }));
+      } catch (error: any) {
+        response.writeHead(500, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ error: error.message }));
+      }
+      `,
+    ],
+  });
 
   let sourceFiles = project.getSourceFiles();
   sourceFiles.forEach((sourceFile) => {
@@ -30,7 +136,7 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
         .map((extendsType) => extendsType.getText());
 
       if (extendsTypes.includes("Service")) {
-        let unimplementedInterface = generatedFile.addInterface({
+        let unimplementedInterface = serverFile.addInterface({
           name: `I${interfaceDeclaration.getName()}`,
           isExported: true,
         });
@@ -75,6 +181,32 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
             parameters: parameters,
             returnType: `Promise<${responseType}>`,
           });
+        });
+
+        trpcServerClassDecl.addMethod({
+          name: `register${interfaceDeclaration.getName()}`,
+          parameters: [
+            {
+              name: "service",
+              type: unimplementedInterface.getName(),
+            },
+            {
+              name: "interceptors",
+              type: "Interceptor[]",
+            },
+          ],
+          statements: [
+            ...unimplementedMethods.map((method) => {
+              return `this.routes['/rpc/${interfaceDeclaration.getName()}/${method.getName()}'] = {
+                action: service.${method.getName()},
+                interceptors: interceptors,
+                method: '${method.getParameters().length > 0 ? "POST" : "GET"}',
+                params: ${JSON.stringify(
+                  method.getParameters().map((param) => param.getName())
+                )},
+              };`;
+            }),
+          ],
         });
 
         clientFile.addInterface({
@@ -163,7 +295,7 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
 
   // add the interfaces to the file
   interfacesToExport.forEach((interfaceDeclaration) => {
-    generatedFile.addInterface({
+    serverFile.addInterface({
       ...interfaceDeclaration.getStructure(),
       isExported: true,
     });
@@ -173,8 +305,15 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
     });
   });
 
-  generatedFile.replaceWithText(
-    format(generatedFile.getFullText(), { parser: "typescript" })
+  serverFile.addFunction({
+    name: "tsRPC2",
+    returnType: "RPCServer",
+    statements: [`return new RPCServer();`],
+    isExported: true,
+  });
+
+  serverFile.replaceWithText(
+    format(serverFile.getFullText(), { parser: "typescript" })
   );
 
   clientFile.replaceWithText(
@@ -183,7 +322,7 @@ function generate(protoPath: any, server: any, outputPath: any, client: any) {
 
   if (server) {
     // generatedFile.formatText();
-    generatedFile.saveSync();
+    serverFile.saveSync();
   }
 
   if (client) {
