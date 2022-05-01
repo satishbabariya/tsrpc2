@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "commander": "^9.1.0",
-    "prettier": "^2.6.1",
+    "prettier": "^2.6.2",
     "ts-morph": "^14.0.0"
   },
   "devDependencies": {
